@@ -1,0 +1,678 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl x:Class="CarForm.Views.NewDocumentWizardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:CarForm.Views"
+             FlowDirection="RightToLeft">
+
+    <UserControl.Resources>
+        <views:IntEqualsToVisibilityConverter x:Key="StepVisibility" />
+        <views:EmptyToVisibilityConverter x:Key="EmptyToVisibility" />
+
+        <Style x:Key="StepField" TargetType="TextBox" BasedOn="{StaticResource TextBoxBase}">
+            <Setter Property="Height" Value="30" />
+        </Style>
+        <Style x:Key="FieldBlock" TargetType="StackPanel">
+            <Setter Property="Margin" Value="0,0,0,10" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ============ Step header ============ -->
+        <Border Grid.Row="0" Style="{StaticResource CardFlat}" Margin="0,0,0,12" Padding="8">
+            <ItemsControl ItemsSource="{Binding Steps}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="1" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Command="{Binding DataContext.GoToStepCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding Index}"
+                                Style="{StaticResource GhostButton}"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Right"
+                                Margin="2">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="24" Height="24" CornerRadius="12" Background="{DynamicResource AccentBrush}">
+                                    <TextBlock Text="{Binding Number}" Foreground="{DynamicResource AccentTextBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" />
+                                </Border>
+                                <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="12.5" />
+                                    <TextBlock Text="{Binding Description}" FontSize="10.5"
+                                               Foreground="{DynamicResource MutedTextBrush}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+
+        <!-- ============ Steps ============ -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+
+                <!-- STEP 1 -->
+                <Grid Visibility="{Binding StepIndex, Converter={StaticResource StepVisibility}, ConverterParameter=0}">
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="سربرگ سند" Style="{StaticResource SectionTitle}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="24" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="24" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="تاریخ سند (شمسی)" Style="{StaticResource FieldLabel}" />
+                                    <TextBox Text="{Binding DocumentDateJalali, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    <TextBlock Text="{Binding [DocumentDateJalali]}" Style="{StaticResource FieldError}"
+                                               Visibility="{Binding [DocumentDateJalali], Converter={StaticResource EmptyToVisibility}}" />
+                                    <TextBlock Text="قالب: 1403/05/01" Style="{StaticResource MutedText}" Margin="0,3,0,0" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="شماره سند" Style="{StaticResource FieldLabel}" />
+                                    <TextBox Text="{Binding Document.DocumentNumber, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    <TextBlock Text="{Binding [DocumentNumber]}" Style="{StaticResource FieldError}"
+                                               Visibility="{Binding [DocumentNumber], Converter={StaticResource EmptyToVisibility}}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="4" VerticalAlignment="Center">
+                                    <CheckBox Content="شماره‌گذاری خودکار" IsChecked="{Binding UseAutoNumbering}" />
+                                    <Button Content="پیشنهاد شماره" Command="{Binding GenerateNumberCommand}"
+                                            Margin="0,8,0,0" HorizontalAlignment="Left" />
+                                    <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- STEP 2: vehicle -->
+                <Grid Visibility="{Binding StepIndex, Converter={StaticResource StepVisibility}, ConverterParameter=1}">
+                    <StackPanel>
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="جستجوی خودرو" Style="{StaticResource SectionTitle}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="220" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="جستجو در خودروها (برند، مدل، پلاک، VIN):" VerticalAlignment="Center" />
+                                    <TextBox Grid.Column="2" Text="{Binding VehicleSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                             VerticalContentAlignment="Center" Height="30">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Key="Enter" Command="{Binding SearchVehiclesCommand}" />
+                                        </TextBox.InputBindings>
+                                    </TextBox>
+                                    <Button Grid.Column="4" Content="جستجو" Command="{Binding SearchVehiclesCommand}"
+                                            Style="{StaticResource PrimaryButton}" />
+                                </Grid>
+                                <ItemsControl ItemsSource="{Binding VehicleSearchResults}" Margin="0,8,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Command="{Binding DataContext.SelectVehicleCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}" HorizontalContentAlignment="Stretch" Margin="0,0,0,4">
+                                                <TextBlock Text="{Binding Display}" />
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="مشخصات خودرو در سند" Style="{StaticResource SectionTitle}" />
+                                <TextBlock Text="{Binding [VehicleMake]}" Style="{StaticResource FieldError}"
+                                           Visibility="{Binding [VehicleMake], Converter={StaticResource EmptyToVisibility}}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0" Grid.Column="0" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="نوع کاربری" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleUsageType, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0" Grid.Column="2" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="تعداد سیلندر" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleCylinders, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0" Grid.Column="4" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="شماره موتور" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleEngineNo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="0" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="سیستم" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleSystem, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="2" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="تعداد محور" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleAxles, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="4" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="شماره شاسی" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleChassisNo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="2" Grid.Column="0" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="تیپ" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleTrim, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="2" Grid.Column="2" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="تعداد چرخ" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleWheels, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="2" Grid.Column="4" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="شماره اتاق" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleCabinNo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="3" Grid.Column="0" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="مدل" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleModel, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="3" Grid.Column="2" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="ظرفیت" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleCapacity, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="3" Grid.Column="4" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="حجم سیلندر" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleDisplacement, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="4" Grid.Column="0" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="نوع سوخت" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleFuelType, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="4" Grid.Column="2" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="رنگ" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="4" Grid.Column="4" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="کشور سازنده" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleCountry, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="شماره شناسایی (VIN)" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleVin, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="6" Grid.Column="0" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="برند" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleMake, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="6" Grid.Column="2" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="سال ساخت" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehicleYear, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="6" Grid.Column="4" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="شماره پلاک" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.VehiclePlate, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <Button Content="پاک کردن مشخصات خودرو" Command="{Binding ClearVehicleCommand}"
+                                        HorizontalAlignment="Left" Margin="0,4,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- STEP 3: owner -->
+                <Grid Visibility="{Binding StepIndex, Converter={StaticResource StepVisibility}, ConverterParameter=2}">
+                    <StackPanel>
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="جستجوی مالک / خریدار" Style="{StaticResource SectionTitle}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="220" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="جستجو (نام، کد ملی، موبایل):" VerticalAlignment="Center" />
+                                    <TextBox Grid.Column="2" Text="{Binding OwnerSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                             VerticalContentAlignment="Center" Height="30">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Key="Enter" Command="{Binding SearchOwnersCommand}" />
+                                        </TextBox.InputBindings>
+                                    </TextBox>
+                                    <Button Grid.Column="4" Content="جستجو" Command="{Binding SearchOwnersCommand}"
+                                            Style="{StaticResource PrimaryButton}" />
+                                </Grid>
+                                <ItemsControl ItemsSource="{Binding OwnerSearchResults}" Margin="0,8,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Command="{Binding DataContext.SelectOwnerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}" HorizontalContentAlignment="Stretch" Margin="0,0,0,4">
+                                                <TextBlock Text="{Binding DisplayName}" />
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="مشخصات مالک در سند" Style="{StaticResource SectionTitle}" />
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <RadioButton Content="شخص حقیقی" GroupName="BuyerKind"
+                                                 IsChecked="{Binding Document.BuyerType, Converter={x:Static views:BuyerTypeConverters.IsIndividual}}" />
+                                    <RadioButton Content="شخص حقوقی" GroupName="BuyerKind"
+                                                 IsChecked="{Binding Document.BuyerType, Converter={x:Static views:BuyerTypeConverters.IsLegal}}" />
+                                </StackPanel>
+
+                                <TextBlock Text="{Binding [BuyerName]}" Style="{StaticResource FieldError}"
+                                           Visibility="{Binding [BuyerName], Converter={StaticResource EmptyToVisibility}}" />
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0" Grid.Column="0" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="نام و نام خانوادگی" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.BuyerName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0" Grid.Column="2" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="نام پدر" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.BuyerFatherName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0" Grid.Column="4" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="شماره شناسنامه/ثبت" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.BuyerIdNumber, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="0" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="تاریخ تولد/ثبت (شمسی)" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding BuyerBirthDateJalali, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                        <TextBlock Text="{Binding [BuyerBirthDateJalali]}" Style="{StaticResource FieldError}"
+                                                   Visibility="{Binding [BuyerBirthDateJalali], Converter={StaticResource EmptyToVisibility}}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="2" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="محل تولد" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.BuyerBirthPlace, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="4" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="محل صدور/ثبت" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.BuyerIssuePlace, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="2" Grid.Column="0" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="تاریخ صدور (شمسی)" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding BuyerIssueDateJalali, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                        <TextBlock Text="{Binding [BuyerIssueDateJalali]}" Style="{StaticResource FieldError}"
+                                                   Visibility="{Binding [BuyerIssueDateJalali], Converter={StaticResource EmptyToVisibility}}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="2" Grid.Column="2" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="شماره ملی" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.BuyerNationalCode, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="2" Grid.Column="4" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="کدپستی" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.BuyerPostalCode, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="3" Grid.Column="0" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="تلفن ثابت" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.BuyerPhone, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="3" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="آدرس محل سکونت (مالک حقیقی)" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.BuyerHomeAddress, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="4" Grid.Column="0" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="تلفن همراه" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.BuyerMobile, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="3" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="آدرس محل فعالیت (مالک حقوقی)" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.BuyerWorkAddress, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="5" Grid.Column="0" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="سمت نفر اول" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.BuyerPosition, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="5" Grid.Column="2" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="نام نفر دوم" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.SecondBuyerName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="5" Grid.Column="4" Style="{StaticResource FieldBlock}">
+                                        <TextBlock Text="سمت نفر دوم" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.SecondBuyerPosition, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <Button Content="پاک کردن مشخصات مالک" Command="{Binding ClearOwnerCommand}"
+                                        HorizontalAlignment="Left" Margin="0,4,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- STEP 4: receipts / insurance -->
+                <Grid Visibility="{Binding StepIndex, Converter={StaticResource StepVisibility}, ConverterParameter=3}">
+                    <StackPanel>
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="1. گمرک" Style="{StaticResource SectionTitle}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <TextBlock Text="شماره پروانه گمرکی" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.CustomsPermitNo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0" Grid.Column="2">
+                                        <TextBlock Text="شماره گواهینامه گمرکی" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.CustomsLicenseNo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0" Grid.Column="4">
+                                        <TextBlock Text="گمرک ترخیص" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.CustomsOffice, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="0">
+                                        <TextBlock Text="تاریخ ترخیص (شمسی)" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding ClearanceDateJalali, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                        <TextBlock Text="{Binding [ClearanceDateJalali]}" Style="{StaticResource FieldError}"
+                                                   Visibility="{Binding [ClearanceDateJalali], Converter={StaticResource EmptyToVisibility}}" />
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="2. بیمه‌نامه شخص ثالث" Style="{StaticResource SectionTitle}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <TextBlock Text="شماره بیمه‌نامه" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.InsurancePolicyNo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0" Grid.Column="2">
+                                        <TextBlock Text="تاریخ صدور (شمسی)" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding InsuranceIssueDateJalali, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                        <TextBlock Text="{Binding [InsuranceIssueDateJalali]}" Style="{StaticResource FieldError}"
+                                                   Visibility="{Binding [InsuranceIssueDateJalali], Converter={StaticResource EmptyToVisibility}}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0" Grid.Column="4">
+                                        <TextBlock Text="نام شرکت بیمه" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.InsuranceCompany, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="0">
+                                        <TextBlock Text="تاریخ انقضا (شمسی)" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding InsuranceExpiryDateJalali, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                        <TextBlock Text="{Binding [InsuranceExpiryDateJalali]}" Style="{StaticResource FieldError}"
+                                                   Visibility="{Binding [InsuranceExpiryDateJalali], Converter={StaticResource EmptyToVisibility}}" />
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="3. عوارض شهرداری" Style="{StaticResource SectionTitle}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <TextBlock Text="شماره فیش" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.TollReceiptNo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0" Grid.Column="2">
+                                        <TextBlock Text="تاریخ فیش (شمسی)" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding TollReceiptDateJalali, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                        <TextBlock Text="{Binding [TollReceiptDateJalali]}" Style="{StaticResource FieldError}"
+                                                   Visibility="{Binding [TollReceiptDateJalali], Converter={StaticResource EmptyToVisibility}}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0" Grid.Column="4">
+                                        <TextBlock Text="بانک / شعبه" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.TollBankBranch, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="4. مالیات دارایی" Style="{StaticResource SectionTitle}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <TextBlock Text="شماره فیش" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.TaxReceiptNo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0" Grid.Column="2">
+                                        <TextBlock Text="تاریخ فیش (شمسی)" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding TaxReceiptDateJalali, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                        <TextBlock Text="{Binding [TaxReceiptDateJalali]}" Style="{StaticResource FieldError}"
+                                                   Visibility="{Binding [TaxReceiptDateJalali], Converter={StaticResource EmptyToVisibility}}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="0" Grid.Column="4">
+                                        <TextBlock Text="بانک / شعبه" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.TaxBankBranch, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="شماره‌گذاری" Style="{StaticResource SectionTitle}" />
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="14" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <TextBlock Text="شماره پروانه شماره‌گذاری" Style="{StaticResource FieldLabel}" />
+                                        <TextBox Text="{Binding Document.NumberingPermitNo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource StepField}" />
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </Grid>
+
+                <!-- STEP 5: invoice -->
+                <Grid Visibility="{Binding StepIndex, Converter={StaticResource StepVisibility}, ConverterParameter=4}">
+                    <Border Style="{StaticResource Card}">
+                        <StackPanel>
+                            <TextBlock Text="صورت‌حساب فروش" Style="{StaticResource SectionTitle}" />
+
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Text="{Binding NewItemTitle, UpdateSourceTrigger=PropertyChanged}" />
+                                <Button Grid.Column="1" Content="افزودن ردیف" Command="{Binding AddInvoiceItemCommand}"
+                                        Style="{StaticResource PrimaryButton}" Margin="8,0,0,0" />
+                                <Button Grid.Column="2" Content="افزودن موارد پیش‌فرض" Command="{Binding AddDefaultInvoiceItemsCommand}"
+                                        Margin="8,0,0,0" />
+                            </Grid>
+
+                            <DataGrid ItemsSource="{Binding Items}" Style="{StaticResource ModernDataGrid}"
+                                      IsReadOnly="False" Height="280">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ردیف" Binding="{Binding SortOrder}" Width="60" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="شرح" Binding="{Binding Title, UpdateSourceTrigger=PropertyChanged}" Width="*" />
+                                    <DataGridTextColumn Header="مبلغ (ریال)" Binding="{Binding Amount, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" Width="160" />
+                                    <DataGridTemplateColumn Width="60" Header="">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" Style="{StaticResource GhostButton}"
+                                                        ToolTip="حذف ردیف"
+                                                        Command="{Binding DataContext.RemoveInvoiceItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <Border Margin="0,12,0,0" Padding="12" CornerRadius="8" Background="{DynamicResource GridHeaderBrush}">
+                                <Grid>
+                                    <TextBlock Text="جمع کل (ریال)" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" Margin="0" />
+                                    <TextBlock Text="{Binding TotalAmount, StringFormat=N0}" HorizontalAlignment="Left"
+                                               FontSize="18" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" />
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- STEP 6: notes -->
+                <Grid Visibility="{Binding StepIndex, Converter={StaticResource StepVisibility}, ConverterParameter=5}">
+                    <StackPanel>
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="گزینه‌های آماده توضیحات" Style="{StaticResource SectionTitle}" />
+                                <TextBlock Text="با تغییر هر گزینه، متن توضیحات به صورت خودکار به‌روزرسانی می‌شود."
+                                           Style="{StaticResource MutedText}" Margin="0,0,0,8" />
+                                <WrapPanel>
+                                    <CheckBox Content="رنگ خودرو تغییر کرده" IsThreeState="True" MinWidth="200"
+                                              IsChecked="{Binding Document.NoteColorChanged, UpdateSourceTrigger=PropertyChanged}" />
+                                    <CheckBox Content="دارای اتاق (کابین)" IsThreeState="True" MinWidth="200"
+                                              IsChecked="{Binding Document.NoteHasCabin, UpdateSourceTrigger=PropertyChanged}" />
+                                    <CheckBox Content="دارای سوئیچ یدک" IsThreeState="True" MinWidth="200"
+                                              IsChecked="{Binding Document.NoteHasDuplicateKey, UpdateSourceTrigger=PropertyChanged}" />
+                                    <CheckBox Content="خودرو کارکرده است" IsThreeState="True" MinWidth="200"
+                                              IsChecked="{Binding Document.NoteIsUsed, UpdateSourceTrigger=PropertyChanged}" />
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="توضیحات دستی" Style="{StaticResource SectionTitle}" />
+                                <TextBox Text="{Binding Document.Notes, UpdateSourceTrigger=PropertyChanged}"
+                                         Height="140" AcceptsReturn="True" TextWrapping="Wrap"
+                                         VerticalContentAlignment="Top" Padding="8" />
+                                <TextBlock Text="متن نهایی درج شده در سند:" Style="{StaticResource FieldLabel}" Margin="0,12,0,4" />
+                                <Border Padding="10" CornerRadius="8" Background="{DynamicResource GridHeaderBrush}">
+                                    <TextBlock Text="{Binding Document.CombinedNotes}" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource TextBrush}" />
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ============ Footer ============ -->
+        <Border Grid.Row="2" Style="{StaticResource CardFlat}" Margin="0,12,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" VerticalAlignment="Center"
+                           Style="{StaticResource MutedText}" TextWrapping="Wrap" />
+
+                <WrapPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="مرحله قبل" Command="{Binding BackCommand}" MinWidth="100" />
+                    <Button Content="مرحله بعد" Command="{Binding NextCommand}" Style="{StaticResource PrimaryButton}" MinWidth="100" Margin="8,0,0,0" />
+                    <Button Content="ذخیره" Command="{Binding SaveCommand}" Style="{StaticResource SuccessButton}" MinWidth="92" Margin="8,0,0,0" />
+                    <Button Content="ذخیره و چاپ" Command="{Binding SaveAndPrintCommand}" MinWidth="110" Margin="8,0,0,0" />
+                    <Button Content="ذخیره و PDF" Command="{Binding SaveAndExportCommand}" MinWidth="110" Margin="8,0,0,0" />
+                    <Button Content="پیش‌نمایش" Command="{Binding PreviewCommand}" MinWidth="92" Margin="8,0,0,0" />
+                    <Button Content="سند جدید" Command="{Binding NewDocumentCommand}" MinWidth="92" Margin="8,0,0,0" />
+                </WrapPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

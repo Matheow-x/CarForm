@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl x:Class="CarForm.Views.DocumentSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:CarForm.Views"
+             FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <views:EmptyToVisibilityConverter x:Key="EmptyToVisibility" />
+        <views:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel>
+
+            <!-- Typography -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="قلم و اندازه‌ها" Style="{StaticResource SectionTitle}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.4*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="قلم متن چاپ" Style="{StaticResource FieldLabel}" />
+                            <ComboBox ItemsSource="{Binding Fonts}" SelectedItem="{Binding Settings.FontFamily}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontFamily="{Binding}" FontSize="14" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <TextBlock Text="{Binding [FontFamily]}" Style="{StaticResource FieldError}"
+                                       Visibility="{Binding [FontFamily], Converter={StaticResource EmptyToVisibility}}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="اندازه متن" Style="{StaticResource FieldLabel}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="46" />
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Minimum="8" Maximum="18" TickFrequency="0.5" IsSnapToTickEnabled="True"
+                                        Value="{Binding Settings.FontSize}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{Binding Settings.FontSize, StringFormat=0.#}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Grid>
+                            <TextBlock Text="{Binding [FontSize]}" Style="{StaticResource FieldError}"
+                                       Visibility="{Binding [FontSize], Converter={StaticResource EmptyToVisibility}}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="اندازه عنوان" Style="{StaticResource FieldLabel}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="46" />
+                                </Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" Minimum="10" Maximum="30" TickFrequency="1" IsSnapToTickEnabled="True"
+                                        Value="{Binding Settings.TitleFontSize}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{Binding Settings.TitleFontSize, StringFormat=0.#}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Grid>
+                            <TextBlock Text="{Binding [TitleFontSize]}" Style="{StaticResource FieldError}"
+                                       Visibility="{Binding [TitleFontSize], Converter={StaticResource EmptyToVisibility}}" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Colors -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="رنگ‌ها" Style="{StaticResource SectionTitle}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,12">
+                            <TextBlock Text="رنگ اصلی (عنوان بخش‌ها)" Style="{StaticResource FieldLabel}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="90" />
+                                    <ColumnDefinition Width="42" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox Grid.Column="0" ItemsSource="{Binding Presets}" SelectedValuePath="Hex"
+                                          SelectedValue="{Binding Settings.PrimaryColor}"
+                                          DisplayMemberPath="Name" />
+                                <TextBox Grid.Column="1" Text="{Binding Settings.PrimaryColor, UpdateSourceTrigger=PropertyChanged}" Margin="8,0,0,0" />
+                                <Border Grid.Column="2" Margin="8,0,0,0" Background="{Binding Settings.PrimaryColor}"
+                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4" />
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,12">
+                            <TextBlock Text="رنگ تأکیدی (سرستون و جمع کل)" Style="{StaticResource FieldLabel}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="90" />
+                                    <ColumnDefinition Width="42" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox Grid.Column="0" ItemsSource="{Binding AccentPresets}" SelectedValuePath="Hex"
+                                          SelectedValue="{Binding Settings.AccentColor}"
+                                          DisplayMemberPath="Name" />
+                                <TextBox Grid.Column="1" Text="{Binding Settings.AccentColor, UpdateSourceTrigger=PropertyChanged}" Margin="8,0,0,0" />
+                                <Border Grid.Column="2" Margin="8,0,0,0" Background="{Binding Settings.AccentColor}"
+                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4" />
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="0">
+                            <TextBlock Text="رنگ متن" Style="{StaticResource FieldLabel}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="90" />
+                                    <ColumnDefinition Width="42" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Text="{Binding Settings.TextColor, UpdateSourceTrigger=PropertyChanged}" />
+                                <Border Grid.Column="1" Margin="8,0,0,0" Background="{Binding Settings.TextColor}"
+                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4" />
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="2">
+                            <TextBlock Text="رنگ خطوط و کادرها" Style="{StaticResource FieldLabel}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="90" />
+                                    <ColumnDefinition Width="42" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Text="{Binding Settings.BorderColor, UpdateSourceTrigger=PropertyChanged}" />
+                                <Border Grid.Column="1" Margin="8,0,0,0" Background="{Binding Settings.BorderColor}"
+                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4" />
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Content -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="متن‌های سربرگ" Style="{StaticResource SectionTitle}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="140" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="عنوان اصلی" Style="{StaticResource FieldLabel}" />
+                            <TextBox Text="{Binding Settings.HeaderText, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="عنوان فرعی" Style="{StaticResource FieldLabel}" />
+                            <TextBox Text="{Binding Settings.SubHeaderText, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="واحد پول" Style="{StaticResource FieldLabel}" />
+                            <TextBox Text="{Binding Settings.CurrencyLabel, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Layout -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="چیدمان و ایمنی چاپ" Style="{StaticResource SectionTitle}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,10">
+                            <TextBlock Text="حاشیه صفحه (میلی‌متر)" Style="{StaticResource FieldLabel}" />
+                            <TextBox Text="{Binding Settings.PageMarginMm, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="{Binding [PageMarginMm]}" Style="{StaticResource FieldError}"
+                                       Visibility="{Binding [PageMarginMm], Converter={StaticResource EmptyToVisibility}}" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,10">
+                            <TextBlock Text="حداکثر ردیف‌های فاکتور" Style="{StaticResource FieldLabel}" />
+                            <TextBox Text="{Binding Settings.MaxInvoiceRows, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="{Binding [MaxInvoiceRows]}" Style="{StaticResource FieldError}"
+                                       Visibility="{Binding [MaxInvoiceRows], Converter={StaticResource EmptyToVisibility}}" />
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="4" Margin="0,0,0,10">
+                            <TextBlock Text="وضوح خروجی PDF (dpi)" Style="{StaticResource FieldLabel}" />
+                            <TextBox Text="{Binding Settings.PdfDpi, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Text="{Binding [PdfDpi]}" Style="{StaticResource FieldError}"
+                                       Visibility="{Binding [PdfDpi], Converter={StaticResource EmptyToVisibility}}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5">
+                            <CheckBox Content="کوچک‌سازی خودکار متن برای جلوگیری از بیرون‌زدگی" IsChecked="{Binding Settings.AutoShrinkText}" />
+                            <CheckBox Content="استفاده از ارقام فارسی در چاپ" IsChecked="{Binding Settings.UsePersianDigits}" />
+                            <CheckBox Content="نمایش خط تیره برای فیلدهای خالی" IsChecked="{Binding Settings.ShowEmptyValuePlaceholder}" />
+                            <CheckBox Content="نمایش جایگاه مهر و امضا" IsChecked="{Binding Settings.ShowSignatureBoxes}" />
+                            <CheckBox Content="نمایش جایگاه الصاق تمبر" IsChecked="{Binding Settings.ShowStampBox}" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Template -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="قالب چاپ (فرم رسمی)" Style="{StaticResource SectionTitle}" />
+                    <TextBlock Text="در حالت «روی تصویر قالب»، تمام خطوط، عنوان‌ها و جایگاه‌های مهر و امضا از تصویر فرم رسمی تأمین می‌شود و برنامه فقط مقادیر را در جعبه‌های اندازه‌گیری‌شده چاپ می‌کند."
+                               Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,0,0,10" />
+
+                    <CheckBox Content="چاپ مقادیر روی تصویر قالب فرم (پیش‌فرض برنامه)" IsChecked="{Binding Settings.UseTemplateOverlay}" />
+                    <CheckBox Content="نمایش کادر محل درج مقادیر (برای تنظیم دقیق چیدمان)" IsChecked="{Binding Settings.ShowFieldFrames}" />
+
+                    <WrapPanel Margin="0,12,0,0">
+                        <Button Content="انتخاب تصویر قالب" Command="{Binding PickTemplateCommand}" Style="{StaticResource PrimaryButton}" />
+                        <Button Content="حذف قالب (فرم داخلی)" Command="{Binding ClearTemplateCommand}" Margin="8,0,0,0" />
+                        <Button Content="بازنشانی چیدمان" Command="{Binding ResetLayoutCommand}" Margin="8,0,0,0" />
+                        <Button Content="ویرایش چیدمان (کشیدن روی فرم)" Command="{Binding OpenLayoutFileCommand}" Margin="8,0,0,0" />
+                        <CheckBox Content="چاپ تصویر قالب" IsChecked="{Binding Settings.PrintTemplateBackground}"
+                                  VerticalAlignment="Center" Margin="16,0,0,0" />
+                    </WrapPanel>
+                    <TextBlock Text="{Binding Settings.TemplateImagePath}" Style="{StaticResource MutedText}"
+                               TextWrapping="Wrap" Margin="0,10,0,0" />
+                </StackPanel>
+            </Border>
+
+            <!-- Section order -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="ترتیب بخش‌های فرم چاپی" Style="{StaticResource SectionTitle}" />
+                    <TextBlock Text="Header,Seller,Buyer,Vehicle,Invoice,Receipts,Notes,Signatures"
+                               Style="{StaticResource MutedText}" Margin="0,0,0,6" />
+                    <TextBox Text="{Binding Settings.SectionOrder, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+            </Border>
+
+            <WrapPanel>
+                <Button Content="ذخیره تنظیمات" Command="{Binding SaveCommand}" Style="{StaticResource SuccessButton}" />
+                <Button Content="پیش‌نمایش نمونه" Command="{Binding PreviewSampleCommand}" Style="{StaticResource PrimaryButton}" Margin="8,0,0,0" />
+                <Button Content="بازگشت به پیش‌فرض" Command="{Binding ResetCommand}" Margin="8,0,0,0" />
+                <Button Content="بازخوانی" Command="{Binding ReloadCommand}" Margin="8,0,0,0" />
+            </WrapPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

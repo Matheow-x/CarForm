@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl x:Class="CarForm.Views.OwnersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:CarForm.Views"
+                         FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <views:NullToVisibilityConverter x:Key="NullToVisibility" />
+        <views:EnumDisplayConverter x:Key="EnumDisplay" />
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource CardFlat}" Margin="0,0,0,12">
+            <WrapPanel>
+                <Button Content="مالک جدید" Command="{Binding AddCommand}" Style="{StaticResource PrimaryButton}" />
+                <Button Content="ویرایش" Command="{Binding EditCommand}" Margin="8,0,0,0" />
+                <Button Content="حذف" Command="{Binding DeleteCommand}" Style="{StaticResource DangerButton}" Margin="8,0,0,0" />
+                <Button Content="بروزرسانی" Command="{Binding RefreshCommand}" Margin="8,0,0,0" />
+            </WrapPanel>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.4*" />
+                <ColumnDefinition Width="14" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- list -->
+            <Border Grid.Column="0" Style="{StaticResource Card}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="فهرست مالکان" Style="{StaticResource SectionTitle}" />
+
+                    <Grid Grid.Row="1" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}" />
+                        <ComboBox Grid.Column="1" Margin="8,0,0,0"
+                                  ItemsSource="{Binding TypeOptions}"
+                                  SelectedItem="{Binding TypeFilter}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDisplay}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Grid.Column="2" Content="جستجو" Command="{Binding SearchCommand}"
+                                Style="{StaticResource PrimaryButton}" Margin="8,0,0,0" />
+                    </Grid>
+
+                    <DataGrid Grid.Row="2"
+                              ItemsSource="{Binding Owners}"
+                              SelectedItem="{Binding SelectedOwner}"
+                              Style="{StaticResource ModernDataGrid}">
+                        <DataGrid.InputBindings>
+                            <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditCommand}" />
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="نام / شرکت" Binding="{Binding DisplayName}" Width="*" />
+                            <DataGridTextColumn Header="کد ملی / شناسه" Binding="{Binding NationalOrEconomicCode}" Width="150" />
+                            <DataGridTextColumn Header="نوع" Binding="{Binding Type, Converter={StaticResource EnumDisplay}}" Width="110" />
+                            <DataGridTextColumn Header="تلفن همراه" Binding="{Binding Mobile}" Width="130" />
+                            <DataGridTextColumn Header="کد پستی" Binding="{Binding PostalCode}" Width="110" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- profile card -->
+            <Border Grid.Column="2" Style="{StaticResource Card}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="پروفایل" Style="{StaticResource SectionTitle}" />
+
+                        <TextBlock Text="برای مشاهده جزئیات، یک مالک را از فهرست انتخاب کنید."
+                                   Style="{StaticResource MutedText}"
+                                   Visibility="{Binding SelectedOwner, Converter={StaticResource NullToVisibility}, ConverterParameter=inverse}" />
+
+                        <StackPanel Visibility="{Binding SelectedOwner, Converter={StaticResource NullToVisibility}}"
+                                    DataContext="{Binding SelectedOwner}">
+
+                            <Border Width="140" Height="140" CornerRadius="70" Margin="0,0,0,14"
+                                    Background="{DynamicResource GridHeaderBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                    HorizontalAlignment="Center">
+                                <Grid>
+                                    <Image Source="{Binding DataContext.ProfileImage, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                           Stretch="UniformToFill">
+                                        <Image.Clip>
+                                            <EllipseGeometry Center="70,70" RadiusX="70" RadiusY="70" />
+                                        </Image.Clip>
+                                    </Image>
+                                    <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="52"
+                                               Foreground="{DynamicResource MutedTextBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
+
+                            <TextBlock Text="{Binding DisplayName}" FontSize="18" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" Foreground="{DynamicResource TextBrush}" />
+                            <TextBlock Text="{Binding Type, Converter={StaticResource EnumDisplay}}"
+                                       Style="{StaticResource MutedText}" HorizontalAlignment="Center" Margin="0,4,0,16" />
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="کد ملی / شناسه:" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding NationalOrEconomicCode}" Margin="8,0,0,8" Foreground="{DynamicResource TextBrush}" />
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="نام پدر / نماینده:" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding FatherName}" Margin="8,0,0,8" Foreground="{DynamicResource TextBrush}" />
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="شماره شناسنامه / ثبت:" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding IdNumber}" Margin="8,0,0,8" Foreground="{DynamicResource TextBrush}" />
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="تلفن ثابت:" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Phone}" Margin="8,0,0,8" Foreground="{DynamicResource TextBrush}" />
+
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="تلفن همراه:" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Mobile}" Margin="8,0,0,8" Foreground="{DynamicResource TextBrush}" />
+
+                                <TextBlock Grid.Row="5" Grid.Column="0" Text="کد پستی:" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding PostalCode}" Margin="8,0,0,8" Foreground="{DynamicResource TextBrush}" />
+
+                                <TextBlock Grid.Row="6" Grid.Column="0" Text="نشانی:" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Address}" TextWrapping="Wrap" Margin="8,0,0,8" Foreground="{DynamicResource TextBrush}" />
+
+                                <TextBlock Grid.Row="7" Grid.Column="0" Text="توضیحات:" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Notes}" TextWrapping="Wrap" Margin="8,0,0,0" Foreground="{DynamicResource TextBrush}" />
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
